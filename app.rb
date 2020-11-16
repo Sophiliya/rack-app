@@ -1,15 +1,8 @@
 require 'rack'
+require_relative 'time_formatter'
 
 class App
-  FORMATS = { 
-    'year' => '%Y', 
-    'month' => '%m', 
-    'day' => '%d', 
-    'hour' => '%H', 
-    'minute' => '%M', 
-    'second' => '%S' 
-}.freeze
-
+  
   def call(env)
     response = body(
       method: env['REQUEST_METHOD'], 
@@ -33,15 +26,10 @@ class App
     params = query_string.length > 0 ? query_string.split('=') : []
     return { status: 422, body: ['Parameter format is missing'] } if params.first != 'format' or params.count < 2
 
-    formats = params.last.split('%2C')
-    unknown_formats = formats.select { |format| !FORMATS.keys.include?(format) }
-    return { status: 400, body: ["Unknown time format #{unknown_formats}"] } if unknown_formats.any?
-
-    get_time?(formats)
+    result(params.last.split('%2C'))
   end
 
-  def get_time?(formats)
-    format = formats.map { |f| FORMATS[f] }.join('-')
-    { status: 200, body: [Time.now.strftime(format)] }
+  def result(formats)
+    { status: 200, body: [TimeFormatter.new(formats).call] }
   end
 end
