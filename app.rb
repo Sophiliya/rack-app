@@ -21,6 +21,7 @@ class App
   end
 
   def make_response(message, status)
+    # Rack::Response.new([message], status, headers)
     [status, headers, [message]]
   end
 
@@ -29,7 +30,7 @@ class App
     return make_response('Parameter format is missing', 422) unless req.query_string.match?(/^format=(\S+)/) 
 
     formats = time_formats(req.query_string)
-    make_response(formatted_time(formats), 200)
+    formatted_time(formats)
   end
 
   def time_formats(query_string)
@@ -38,6 +39,12 @@ class App
   end
 
   def formatted_time(formats)
-    TimeFormatter.new(formats).call
+    time_result = TimeFormatter.new(formats).call
+
+    if time_result[:error]
+      make_response(time_result[:error], 400)
+    else
+      make_response(time_result[:time_string], 200)
+    end
   end
 end

@@ -13,9 +13,22 @@ class TimeFormatter
   end
 
   def call
-    unknown_formats = @formats.select { |format| !FORMATS.keys.include?(format) }
-    return "Unknown time format #{unknown_formats}" if unknown_formats.any?
+    success? ? { time_string: time_string } : { error: error_message }
+  end
 
+  private 
+
+  def success?
+    @unknown_formats = @formats - FORMATS.keys
+
+    @unknown_formats.any? ? false : true
+  end
+
+  def error_message
+    "Unknown time format #{@unknown_formats}"
+  end
+
+  def time_string
     format = @formats.map { |f| FORMATS[f] }.join('-')
     Time.now.strftime(format)
   end
