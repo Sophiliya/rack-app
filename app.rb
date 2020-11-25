@@ -21,8 +21,7 @@ class App
   end
 
   def make_response(message, status)
-    # Rack::Response.new(message, status, headers)
-    [status, headers, [message]]
+    Rack::Response.new(message, status, headers).finish
   end
 
   def time_request_handler(req)
