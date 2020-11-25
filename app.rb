@@ -21,7 +21,7 @@ class App
   end
 
   def make_response(message, status)
-    # Rack::Response.new([message], status, headers)
+    # Rack::Response.new(message, status, headers)
     [status, headers, [message]]
   end
 
@@ -39,12 +39,13 @@ class App
   end
 
   def formatted_time(formats)
-    time_result = TimeFormatter.new(formats).call
+    time_result = TimeFormatter.new(formats)
+    time_result.call
 
-    if time_result[:error]
-      make_response(time_result[:error], 400)
+    if time_result.success?
+      make_response(time_result.time_string, 200)
     else
-      make_response(time_result[:time_string], 200)
+      make_response(time_result.error_message, 400)
     end
   end
 end

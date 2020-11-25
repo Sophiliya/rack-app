@@ -10,18 +10,22 @@ class TimeFormatter
 
   def initialize(formats)
     @formats = formats
+    @valid_format = ''
+    @unknown_formats = []
   end
 
   def call
-    success? ? { time_string: time_string } : { error: error_message }
-  end
-
-  private 
+    @formats.each do |format|
+      if FORMATS[format]
+        @valid_format += @valid_format.empty? ? FORMATS[format] : ('-' + FORMATS[format])
+      else
+        @unknown_formats << format
+      end
+    end
+  end 
 
   def success?
-    @unknown_formats = @formats - FORMATS.keys
-
-    @unknown_formats.any? ? false : true
+    @unknown_formats.empty?
   end
 
   def error_message
@@ -29,7 +33,6 @@ class TimeFormatter
   end
 
   def time_string
-    format = @formats.map { |f| FORMATS[f] }.join('-')
-    Time.now.strftime(format)
+    Time.now.strftime(@valid_format)
   end
 end
